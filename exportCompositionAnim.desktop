@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=exportCompositionAnim
+X-Python-2-Compatible=false
+X-Krita-Manual=Manual.html
+Name=Export Composition Anim
+Comment=Export composition for each anim frame 
