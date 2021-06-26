@@ -1,6 +1,7 @@
 from krita import *
 import os
-from PyQt5.QtWidgets import QWidget, QMessageBox
+from PyQt5.QtWidgets import QMessageBox
+from . import exportCompositionAnimDialog
 
 class ExportCompositionAnim(Extension):
 
@@ -30,16 +31,23 @@ class ExportCompositionAnim(Extension):
         except OSError as e:
             raise e
 
+    def initForExport(self):
+        app = Krita.instance()
+        self.doc = app.activeDocument()
+        if not self.doc: return
+        
+        p = os.path.split(self.doc.fileName())
+        self.exportPath = p[0]
+        self.exportDir = os.path.splitext(p[1])[0]
+        self.namePrefix = ""
+
     def export(self):
         app = Krita.instance()
         app.setBatchmode(True)
 
-        self.doc = app.activeDocument()
-        
-        self.exportDir = os.path.splitext(self.doc.fileName())[0] + "/"
-
         # Create the folder if missing
-        self.mkdir(self.exportDir)
+        self.exportPath = os.path.join(self.exportPath, self.exportDir)
+        self.mkdir(self.exportPath)
 
         # Gets animated layers list and export others
         self.layersName = ""
@@ -74,17 +82,28 @@ class ExportCompositionAnim(Extension):
         app.setBatchmode(False)
 
         # QMessageBox creates quick popup with information
-        QMessageBox.information(app.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportDir + ":" + self.layersName)
+        QMessageBox.information(app.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportPath + ":" + self.layersName)
         
     def exportLayer(self, node, anim = 0):
-        fileName = node.name() + "_" + str(anim) + ".png"
+        fileName = self.namePrefix + node.name() + "_" + str(anim) + ".png"
         self.layersName += "\n" + fileName
-        path = os.path.join(self.exportDir, fileName)
+        path = os.path.join(self.exportPath, fileName)
         bounds = QRect(0, 0, self.doc.width(), self.doc.height())
         node.save(path, self.doc.resolution() / 72., self.doc.resolution() / 72., self.pngInfo, bounds)
+
+    # Show a dialogue asking for the folder name and files prefix
+    def exportDialog(self):
+        self.initForExport()
+        if not self.doc: return
+        
+        app = Krita.instance()
+
+        # QDialog & layout
+        self.mainDialog = exportCompositionAnimDialog.ExportCompositionAnimDialog(self, app.activeWindow().qwindow())
+        self.mainDialog.initialize()
 
     # called after setup(self)
     def createActions(self, window):
         action = window.createAction("export_composition_anim", i18n("Export composition anim"))
         action.setToolTip(i18n("Plugin to manipulate properties of selected documents."))
-        action.triggered.connect(self.export)
+        action.triggered.connect(self.exportDialog)
