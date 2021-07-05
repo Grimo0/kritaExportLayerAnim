@@ -37,7 +37,7 @@ class ExportCompositionAnimDialog(QDialog):
         self.setWindowTitle(i18n("Export layers & anim"))
         self.resize(300, 100)
 
-    def initialize(self):        
+    def initialize(self):
         self.exportDirLineEdit.setText(self.exportCompositionAnim.exportDir)
         self.namePrefixLineEdit.setText(self.exportCompositionAnim.namePrefix)
 

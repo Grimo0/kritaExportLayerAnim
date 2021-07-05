@@ -38,8 +38,14 @@ class ExportCompositionAnim(Extension):
         
         p = os.path.split(self.doc.fileName())
         self.exportPath = p[0]
-        self.exportDir = os.path.splitext(p[1])[0]
-        self.namePrefix = ""
+        filename = os.path.splitext(p[1])[0]
+        exportPath = os.path.join(self.exportPath, filename)
+        if (os.path.exists(exportPath) and os.path.isdir(exportPath)):
+            self.exportDir = filename
+            self.namePrefix = ""
+        else:
+            self.exportDir = ""
+            self.namePrefix = filename
 
     def export(self):
         app = Krita.instance()
@@ -63,6 +69,15 @@ class ExportCompositionAnim(Extension):
                 continue
             if node.animated():
                 animatedLayers.append(node)
+            elif node.type() == "grouplayer":
+                child = node.childNodes()
+                animated = False
+                for c in child:
+                    if c.animated():
+                        animated = True
+                        break
+                if animated: animatedLayers.append(node)
+                else: self.exportLayer(node)
             else:
                 self.exportLayer(node)
 
@@ -75,14 +90,21 @@ class ExportCompositionAnim(Extension):
             for node in animatedLayers:
                 if node.hasKeyframeAtTime(i):
                     self.exportLayer(node, i)
+                elif node.type() == "grouplayer":
+                    child = node.childNodes()
+                    for c in child:
+                        if c.hasKeyframeAtTime(i):
+                            self.exportLayer(node, i)
+                            break
                 
             i += 1
         
-        self.doc.setCurrentTime(currTime)
+        if i > 1 :
+            self.doc.setCurrentTime(currTime)
         app.setBatchmode(False)
 
         # QMessageBox creates quick popup with information
-        QMessageBox.information(app.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportPath + ":" + self.layersName)
+        QMessageBox.information(app.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportPath + " :" + self.layersName)
         
     def exportLayer(self, node, anim = 0):
         fileName = self.namePrefix + node.name() + "_" + str(anim) + ".png"
