@@ -40,13 +40,16 @@ class ExportCompositionAnimDialog(QDialog):
     def initialize(self):
         self.exportDirLineEdit.setText(self.exportCompositionAnim.exportDir)
         self.namePrefixLineEdit.setText(self.exportCompositionAnim.namePrefix)
+        self.updateLabels()
 
         self.show()
         self.activateWindow()
         self.exec_()
 
     def updateLabels(self):
-        self.exampleLabel.setText(i18n("Files will be created in") + " " + os.path.join(self.exportCompositionAnim.exportPath, self.exportDirLineEdit.text()))
+        self.exampleLabel.setText(i18n("Files path example:") + " "
+            + os.path.join(self.exportCompositionAnim.exportPath, self.exportDirLineEdit.text()) 
+            + self.namePrefixLineEdit.text() + "LAYERNAME_FRAME.png")
 
     def accept(self):
         self.exportCompositionAnim.exportDir = self.exportDirLineEdit.text()
