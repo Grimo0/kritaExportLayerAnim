@@ -18,6 +18,16 @@ class ExportCompositionAnim(Extension):
         self.pngInfo.setProperty("saveSRGBProfile", False)
         self.pngInfo.setProperty("transparencyFillcolor", [0,0,0])
 
+        # Jpg save info
+        self.jpgInfo = InfoObject()
+        self.jpgInfo.setProperty('quality', 85)           # 0 (high compression/low quality) to 100 (low compression/higher quality)
+        self.jpgInfo.setProperty('smoothing', 0)         # 0 to 100    
+        self.jpgInfo.setProperty('subsampling', 0)        # 0=4:2:0 (smallest file size)   1=4:2:2    2=4:4:0     3=4:4:4 (Best quality)
+        self.jpgInfo.setProperty('progressive', False)
+        self.jpgInfo.setProperty('optimize', True)
+        self.jpgInfo.setProperty('saveProfile', True)
+        self.jpgInfo.setProperty("transparencyFillcolor", [0,0,0])
+
     # Krita.instance() exists, so do any setup work
     def setup(self):
         pass
@@ -32,8 +42,7 @@ class ExportCompositionAnim(Extension):
             raise e
 
     def initForExport(self):
-        app = Krita.instance()
-        self.doc = app.activeDocument()
+        self.doc = Application.activeDocument()
         if not self.doc: return
         
         p = os.path.split(self.doc.fileName())
@@ -46,10 +55,10 @@ class ExportCompositionAnim(Extension):
         else:
             self.exportDir = ""
             self.namePrefix = filename
+        self.extension = "png"
 
     def export(self):
-        app = Krita.instance()
-        app.setBatchmode(True)
+        Application.setBatchmode(True)
 
         # Create the folder if missing
         self.exportPath = os.path.join(self.exportPath, self.exportDir)
@@ -101,27 +110,28 @@ class ExportCompositionAnim(Extension):
         
         if i > 1 :
             self.doc.setCurrentTime(currTime)
-        app.setBatchmode(False)
+        Application.setBatchmode(False)
 
         # QMessageBox creates quick popup with information
-        QMessageBox.information(app.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportPath + " :" + self.layersName)
+        QMessageBox.information(Application.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportPath + " :" + self.layersName)
         
     def exportLayer(self, node, anim = 0):
-        fileName = self.namePrefix + node.name() + "_" + str(anim) + ".png"
+        fileName = self.namePrefix + node.name() + "_" + str(anim) + "." + self.extension
         self.layersName += "\n" + fileName
         path = os.path.join(self.exportPath, fileName)
         bounds = QRect(0, 0, self.doc.width(), self.doc.height())
-        node.save(path, self.doc.resolution() / 72., self.doc.resolution() / 72., self.pngInfo, bounds)
+        if self.extension == "png":
+            node.save(path, self.doc.resolution() / 72., self.doc.resolution() / 72., self.pngInfo, bounds)
+        else:
+            node.save(path, self.doc.resolution() / 72., self.doc.resolution() / 72., self.jpgInfo, bounds)
 
     # Show a dialogue asking for the folder name and files prefix
     def exportDialog(self):
         self.initForExport()
         if not self.doc: return
         
-        app = Krita.instance()
-
         # QDialog & layout
-        self.mainDialog = exportCompositionAnimDialog.ExportCompositionAnimDialog(self, app.activeWindow().qwindow())
+        self.mainDialog = exportCompositionAnimDialog.ExportCompositionAnimDialog(self, Application.activeWindow().qwindow())
         self.mainDialog.initialize()
 
     # called after setup(self)
