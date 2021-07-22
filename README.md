@@ -6,8 +6,9 @@ It exports layers in files. All layers up to the specified depth (2 by default) 
 
 ## Installation
 
+- Download, clone or fork this project
 - Close Krita
-- Execute the *copy.bat* (or the *mklink.bat* if you forked this project) as an admin.
+- Execute *copy.bat* (or *mklink.bat* if you cloned/forked this project) as an admin.
 - Launch Krita 
 - In Settings/Configure Krita/Python Plugin Manager, make sure that Export Composition Anim is activated
 - Optionnaly. Change the shortcut (`Ctrl+Alt+Shift+E` by default).
