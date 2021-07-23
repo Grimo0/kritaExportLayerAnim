@@ -19,6 +19,7 @@ class ExportCompositionAnimDialog(QDialog):
         self.buttonBox = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
 
+        self.exampleLabel.setWordWrap(True)
         self.extensionComboBox.addItems(["png", "jpg"])
         
         self.line = QFrame()
@@ -29,7 +30,6 @@ class ExportCompositionAnimDialog(QDialog):
         self.formLayout.addRow(i18n("Directory name:"), self.exportDirLineEdit)
         self.formLayout.addRow(i18n("File prefix:"), self.namePrefixLineEdit)
         self.formLayout.addWidget(self.exampleLabel)
-        self.formLayout.addWidget(self.line)
         self.formLayout.addRow(i18n("Extension:"), self.extensionComboBox)
         
         self.buttonBox.accepted.connect(self.accept)
@@ -40,7 +40,7 @@ class ExportCompositionAnimDialog(QDialog):
         self.mainLayout.addWidget(self.buttonBox)
         
         self.setWindowTitle(i18n("Export layers & anim"))
-        self.resize(350, 100)
+        self.resize(400, 100)
 
     def initialize(self):
         self.exportDirLineEdit.setText(self.exportCompositionAnim.exportDir)
@@ -54,7 +54,7 @@ class ExportCompositionAnimDialog(QDialog):
 
     def updateLabels(self):
         self.exampleLabel.setText(i18n("Files path example:") + " "
-            + os.path.join(self.exportCompositionAnim.exportPath, self.exportDirLineEdit.text()) 
+            + self.exportCompositionAnim.exportPath + "/" + self.exportDirLineEdit.text() + "/"
             + self.namePrefixLineEdit.text() + "LAYERNAME_FRAME." + self.extensionComboBox.currentText())
 
     def accept(self):

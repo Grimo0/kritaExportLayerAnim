@@ -2,7 +2,9 @@
 
 A python plugin for [Krita](https://krita.org/).
 
-It exports layers in files. All layers up to the specified depth (2 by default) not containing NE in their name will be exported.
+It exports all root layers in distinct files.
+Add `NE` to a layer to prevent it from being exported.
+Add `EC` to a group layer to export it's child instead.
 
 ## Installation
 
@@ -16,5 +18,5 @@ It exports layers in files. All layers up to the specified depth (2 by default) 
 ## TODO
 - [x] Add bash to create symlink in krita pykrita and actions folder (the later might not exist)
 - [x] Add jpg option
+- [x] Add option to export childs of a group instead of the group
 - [ ] Add jpg parameters 
-- [ ] Add depth of layers to export

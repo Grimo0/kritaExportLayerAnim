@@ -41,6 +41,18 @@ class ExportCompositionAnim(Extension):
         except OSError as e:
             raise e
 
+    def isLayerAnimated(self, node):
+        if node.animated():
+            return True
+        elif node.type() == "grouplayer":
+            child = node.childNodes()
+            for c in child:
+                if c.animated():
+                    return True
+                elif c.type() == "grouplayer" and self.isLayerAnimated(c):
+                    return True
+        return False
+
     def initForExport(self):
         self.doc = Application.activeDocument()
         if not self.doc: return
@@ -48,7 +60,7 @@ class ExportCompositionAnim(Extension):
         p = os.path.split(self.doc.fileName())
         self.exportPath = p[0]
         filename = os.path.splitext(p[1])[0]
-        exportPath = os.path.join(self.exportPath, filename)
+        exportPath = self.exportPath + "/" + filename
         if (os.path.exists(exportPath) and os.path.isdir(exportPath)):
             self.exportDir = filename
             self.namePrefix = ""
@@ -61,12 +73,13 @@ class ExportCompositionAnim(Extension):
         Application.setBatchmode(True)
 
         # Create the folder if missing
-        self.exportPath = os.path.join(self.exportPath, self.exportDir)
+        self.exportPath = self.exportPath + "/" + self.exportDir
         self.mkdir(self.exportPath)
 
         # Gets animated layers list and export others
         self.layersName = ""
         topLevelLayers = self.doc.topLevelNodes()
+        # AnimatedLayer = namedtuple('AnimatedLayer', ['name', 'node'])
         animatedLayers = []
         for node in topLevelLayers:
             if (node.type() != "paintlayer"
@@ -76,19 +89,15 @@ class ExportCompositionAnim(Extension):
                 continue
             if "NE" in node.name():
                 continue
-            if node.animated():
-                animatedLayers.append(node)
-            elif node.type() == "grouplayer":
+            if node.type() == "grouplayer" and "EC" in node.name():
                 child = node.childNodes()
-                animated = False
                 for c in child:
-                    if c.animated():
-                        animated = True
-                        break
-                if animated: animatedLayers.append(node)
-                else: self.exportLayer(node)
+                    topLevelLayers.append(c)#AnimatedLayer(node.name().replace("EC").strip() + c.name().strip(), c))
             else:
-                self.exportLayer(node)
+                if self.isLayerAnimated(node):
+                    animatedLayers.append(node)
+                else: 
+                    self.exportLayer(node)
 
         # Export animated layers
         currTime = self.doc.currentTime()
@@ -115,10 +124,13 @@ class ExportCompositionAnim(Extension):
         # QMessageBox creates quick popup with information
         QMessageBox.information(Application.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportPath + " :" + self.layersName)
         
-    def exportLayer(self, node, anim = 0):
-        fileName = self.namePrefix + node.name() + "_" + str(anim) + "." + self.extension
+    def exportLayer(self, node, anim = None):
+        if anim == None:
+            fileName = self.namePrefix + node.name() + "." + self.extension
+        else:
+            fileName = self.namePrefix + node.name() + "_" + str(anim) + "." + self.extension
         self.layersName += "\n" + fileName
-        path = os.path.join(self.exportPath, fileName)
+        path = self.exportPath + "/" + fileName
         bounds = QRect(0, 0, self.doc.width(), self.doc.height())
         if self.extension == "png":
             node.save(path, self.doc.resolution() / 72., self.doc.resolution() / 72., self.pngInfo, bounds)
