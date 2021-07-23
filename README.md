@@ -6,6 +6,8 @@ It exports all root layers in distinct files.
 Add `NE` to a layer to prevent it from being exported.
 Add `EC` to a group layer to export it's child instead.
 
+![Screenshot](screen.jpg)
+
 ## Installation
 
 - Download, clone or fork this project
