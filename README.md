@@ -3,8 +3,9 @@
 A python plugin for [Krita](https://krita.org/).
 
 It exports all root layers in distinct files.
-Add `NE` to a layer to prevent it from being exported.
-Add `EC` to a group layer to export it's child instead.
+
+- Add `NE` to a layer to prevent it from being exported.
+- Add `EC` to a group layer to export it's child instead.
 
 ![Screenshot](screen.jpg)
 
