@@ -1,4 +1,4 @@
-# kritaExportLayerAnim
+# Export Layer Anim
 
 A python plugin for [Krita](https://krita.org/).
 
