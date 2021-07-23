@@ -1,12 +1,12 @@
 from krita import *
 import os
 from PyQt5.QtWidgets import QMessageBox
-from . import exportCompositionAnimDialog
+from . import exportLayerAnimDialog
 
-class ExportCompositionAnim(Extension):
+class ExportLayerAnim(Extension):
 
     def __init__(self, parent):
-        super(ExportCompositionAnim, self).__init__(parent)
+        super(ExportLayerAnim, self).__init__(parent)
 
         # Png save info
         self.pngInfo = InfoObject()
@@ -143,11 +143,11 @@ class ExportCompositionAnim(Extension):
         if not self.doc: return
         
         # QDialog & layout
-        self.mainDialog = exportCompositionAnimDialog.ExportCompositionAnimDialog(self, Application.activeWindow().qwindow())
+        self.mainDialog = exportLayerAnimDialog.ExportLayerAnimDialog(self, Application.activeWindow().qwindow())
         self.mainDialog.initialize()
 
     # called after setup(self)
     def createActions(self, window):
-        action = window.createAction("export_composition_anim", i18n("Export composition anim"))
+        action = window.createAction("export_layer_anim", i18n("Export layer anim"))
         action.setToolTip(i18n("Plugin to manipulate properties of selected documents."))
         action.triggered.connect(self.exportDialog)

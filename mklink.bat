@@ -1,5 +1,5 @@
-mklink /D "%USERPROFILE%\AppData\Roaming\krita\pykrita\exportCompositionAnim" %~dp0\exportCompositionAnim
-mklink "%USERPROFILE%\AppData\Roaming\krita\pykrita\exportCompositionAnim.desktop" %~dp0\exportCompositionAnim.desktop
+mklink /D "%USERPROFILE%\AppData\Roaming\krita\pykrita\kritaExportLayerAnim" %~dp0\kritaExportLayerAnim
+mklink "%USERPROFILE%\AppData\Roaming\krita\pykrita\kritaExportLayerAnim.desktop" %~dp0\kritaExportLayerAnim.desktop
 mkdir "%USERPROFILE%\AppData\Roaming\krita\actions"
-mklink "%USERPROFILE%\AppData\Roaming\krita\actions\exportCompositionAnim.action" %~dp0\exportCompositionAnim.action
+mklink "%USERPROFILE%\AppData\Roaming\krita\actions\kritaExportLayerAnim.action" %~dp0\kritaExportLayerAnim.action
 pause

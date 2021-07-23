@@ -1,5 +1,5 @@
 cd /D %USERPROFILE%\AppData\Roaming\krita\
-xcopy /S exportCompositionAnim "pykrita\exportCompositionAnim"
-xcopy exportCompositionAnim.desktop "pykrita\exportCompositionAnim.desktop"
+xcopy /S %~dp0\kritaExportLayerAnim "pykrita\kritaExportLayerAnim"
+xcopy %~dp0\kritaExportLayerAnim.desktop "pykrita\kritaExportLayerAnim.desktop"
 mkdir "actions"
-xcopy exportCompositionAnim.action "actions\exportCompositionAnim.action"
+xcopy %~dp0\kritaExportLayerAnim.action "actions\kritaExportLayerAnim.action"

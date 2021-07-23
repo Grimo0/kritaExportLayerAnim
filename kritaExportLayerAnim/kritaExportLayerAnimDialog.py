@@ -3,12 +3,12 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QFormLayout,
 import os
 
 
-class ExportCompositionAnimDialog(QDialog):
+class ExportLayerAnimDialog(QDialog):
 
-    def __init__(self, exportCompositionAnim, parent=None):
-        super(ExportCompositionAnimDialog, self).__init__(parent)
+    def __init__(self, exportLayerAnim, parent=None):
+        super(ExportLayerAnimDialog, self).__init__(parent)
 
-        self.exportCompositionAnim = exportCompositionAnim
+        self.exportLayerAnim = exportLayerAnim
 
         self.mainLayout = QVBoxLayout(self)
         self.formLayout = QFormLayout()
@@ -43,9 +43,9 @@ class ExportCompositionAnimDialog(QDialog):
         self.resize(400, 100)
 
     def initialize(self):
-        self.exportDirLineEdit.setText(self.exportCompositionAnim.exportDir)
-        self.namePrefixLineEdit.setText(self.exportCompositionAnim.namePrefix)
-        self.extensionComboBox.setCurrentText(self.exportCompositionAnim.extension)
+        self.exportDirLineEdit.setText(self.exportLayerAnim.exportDir)
+        self.namePrefixLineEdit.setText(self.exportLayerAnim.namePrefix)
+        self.extensionComboBox.setCurrentText(self.exportLayerAnim.extension)
         self.updateLabels()
 
         self.show()
@@ -54,16 +54,16 @@ class ExportCompositionAnimDialog(QDialog):
 
     def updateLabels(self):
         self.exampleLabel.setText(i18n("Files path example:") + " "
-            + self.exportCompositionAnim.exportPath + "/" + self.exportDirLineEdit.text() + "/"
+            + self.exportLayerAnim.exportPath + "/" + self.exportDirLineEdit.text() + "/"
             + self.namePrefixLineEdit.text() + "LAYERNAME_FRAME." + self.extensionComboBox.currentText())
 
     def accept(self):
-        self.exportCompositionAnim.exportDir = self.exportDirLineEdit.text()
-        self.exportCompositionAnim.namePrefix = self.namePrefixLineEdit.text()
-        self.exportCompositionAnim.extension = self.extensionComboBox.currentText()
-        self.exportCompositionAnim.export()
+        self.exportLayerAnim.exportDir = self.exportDirLineEdit.text()
+        self.exportLayerAnim.namePrefix = self.namePrefixLineEdit.text()
+        self.exportLayerAnim.extension = self.extensionComboBox.currentText()
+        self.exportLayerAnim.export()
 
-        super(ExportCompositionAnimDialog, self).accept()
+        super(ExportLayerAnimDialog, self).accept()
 
     def closeEvent(self, event):
         event.accept()

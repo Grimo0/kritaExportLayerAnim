@@ -3,9 +3,9 @@
 	<Actions category="Scripts">
 		<text>My Scripts</text>
 
-		<Action name="export_composition_anim">
+		<Action name="export_layer_anim">
 			<icon></icon>
-			<text>Export Composition Anim</text>
+			<text>Export Layer Anim</text>
 			<whatsThis></whatsThis>
 			<toolTip></toolTip>
 			<iconText></iconText>

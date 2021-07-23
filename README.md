@@ -1,4 +1,4 @@
-# kritaExportCompositionAnim
+# kritaExportLayerAnim
 
 A python plugin for [Krita](https://krita.org/).
 
@@ -14,7 +14,7 @@ Add `EC` to a group layer to export it's child instead.
 - Close Krita
 - Execute *copy.bat* (or *mklink.bat* if you cloned/forked this project) as an admin.
 - Launch Krita 
-- In Settings/Configure Krita/Python Plugin Manager, make sure that Export Composition Anim is activated
+- In Settings/Configure Krita/Python Plugin Manager, make sure that Export Layer Anim is activated
 - Optionnaly. Change the shortcut (`Ctrl+Alt+Shift+E` by default).
 
 ## TODO
