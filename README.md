@@ -20,3 +20,4 @@ Add `EC` to a group layer to export it's child instead.
 - [x] Add jpg option
 - [x] Add option to export childs of a group instead of the group
 - [ ] Add jpg parameters 
+- [ ] Add option to export layers of the compositions

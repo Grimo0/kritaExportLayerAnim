@@ -5,4 +5,4 @@ X-KDE-Library=exportCompositionAnim
 X-Python-2-Compatible=false
 X-Krita-Manual=Manual.html
 Name=Export Composition Anim
-Comment=Export composition for each anim frame 
+Comment=Export root layers for each anim frame 
