@@ -157,7 +157,7 @@ class ExportLayerAnim(Extension):
                         self.exportLayer(node, compo)
 
             # Export animated layers
-            if range(animatedLayers) > 0:
+            if len(animatedLayers) > 0:
                 haveAnimatedLayers = True
                 for i in range(self.doc.animationLength()):
                     self.doc.setCurrentTime(i)
