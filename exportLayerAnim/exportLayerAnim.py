@@ -1,6 +1,5 @@
 from krita import *
 import os
-from PyQt5.QtWidgets import QMessageBox
 from . import exportLayerAnimDialog
 
 class ExportLayerAnim(Extension):
@@ -53,21 +52,79 @@ class ExportLayerAnim(Extension):
                     return True
         return False
 
+    def getCompositionIdx(self, name):
+        # Get composition docker, view, model
+        docker = next(d for d in Application.dockers() if d.objectName() == 'CompositionDocker')
+        view = docker.findChild(QListView, 'compositionView')
+        model = view.model()
+
+        # Get a composition based on its name
+        for row in range(model.rowCount()):
+            index = model.index(row, 0)
+            text = index.data(role=Qt.DisplayRole)
+            if text == name:
+                return index
+        else:
+            raise RuntimeError(f'Unknown composition. (did get: {name=})')
+
+    # A generator activating compositions one by one then returning to the previous state
+    def composition(self):
+        if not self.useCompositions:
+            yield ""
+            return
+
+        # Get composition docker
+        docker = next(d for d in Application.dockers() if d.objectName() == 'CompositionDocker')
+        view = docker.findChild(QListView, 'compositionView')
+        model = view.model()
+        
+        meta = docker.metaObject()
+        activated = meta.method(meta.indexOfSlot(b'activated(QModelIndex)'))
+
+        # Save current state
+        saveClicked = meta.method(meta.indexOfSlot(b'saveClicked()'))
+        saveClicked.invoke(docker)
+
+        try:
+            # Browse all composition
+            for row in range(model.rowCount() - 1): # -1 because of the saved compo
+                index = model.index(row, 0)
+                checked_state = index.data(role=Qt.CheckStateRole)
+                if checked_state == Qt.Checked:
+                    # Activate the composition  
+                    activated.invoke(docker, Q_ARG("QModelIndex", index))
+                    yield index.data(role=Qt.DisplayRole)
+
+        finally:
+            lastIdx = model.index(model.rowCount() - 1, 0)
+
+            # Reverse to the previous state
+            activated.invoke(docker, Q_ARG("QModelIndex", lastIdx))
+
+            # Remove the tmp save
+            selectionModel = view.selectionModel()
+            selectionModel.setCurrentIndex(lastIdx, QItemSelectionModel.Current)
+            deleteClicked = meta.method(meta.indexOfSlot(b'deleteClicked()'))
+            deleteClicked.invoke(docker)
+
     def initForExport(self):
         self.doc = Application.activeDocument()
         if not self.doc: return
         
+        self.layersName = ""
+
         p = os.path.split(self.doc.fileName())
         self.exportPath = p[0]
         filename = os.path.splitext(p[1])[0]
-        exportPath = self.exportPath + "/" + filename
-        if (os.path.exists(exportPath) and os.path.isdir(exportPath)):
+        path = self.exportPath + "/" + filename
+        if (os.path.exists(path) and os.path.isdir(path)):
             self.exportDir = filename
             self.namePrefix = ""
         else:
             self.exportDir = ""
             self.namePrefix = filename
         self.extension = "png"
+        self.useCompositions = False
 
     def export(self):
         Application.setBatchmode(True)
@@ -76,59 +133,54 @@ class ExportLayerAnim(Extension):
         self.exportPath = self.exportPath + "/" + self.exportDir
         self.mkdir(self.exportPath)
 
-        # Gets animated layers list and export others
-        self.layersName = ""
-        topLevelLayers = self.doc.topLevelNodes()
-        # AnimatedLayer = namedtuple('AnimatedLayer', ['name', 'node'])
-        animatedLayers = []
-        for node in topLevelLayers:
-            if (node.type() != "paintlayer"
-                and node.type() != "grouplayer"
-                and node.type() != "filelayer"
-                and node.type() != "vectorlayer"):
-                continue
-            if "NE" in node.name():
-                continue
-            if node.type() == "grouplayer" and "EC" in node.name():
-                child = node.childNodes()
-                for c in child:
-                    topLevelLayers.append(c)#AnimatedLayer(node.name().replace("EC").strip() + c.name().strip(), c))
-            else:
-                if self.isLayerAnimated(node):
-                    animatedLayers.append(node)
-                else: 
-                    self.exportLayer(node)
-
-        # Export animated layers
-        currTime = self.doc.currentTime()
-        i = 0
-        while i < self.doc.animationLength():
-            self.doc.setCurrentTime(i)
-
-            for node in animatedLayers:
-                if node.hasKeyframeAtTime(i):
-                    self.exportLayer(node, i)
-                elif node.type() == "grouplayer":
+        haveAnimatedLayers = False
+        for compo in self.composition():
+            # Gets animated layers list and export others
+            topLevelLayers = self.doc.topLevelNodes()
+            animatedLayers = []
+            for node in topLevelLayers:
+                if (node.type() != "paintlayer"
+                    and node.type() != "grouplayer"
+                    and node.type() != "filelayer"
+                    and node.type() != "vectorlayer"):
+                    continue
+                if "NE" in node.name():
+                    continue
+                if node.type() == "grouplayer" and "EC" in node.name():
                     child = node.childNodes()
                     for c in child:
-                        if c.hasKeyframeAtTime(i):
-                            self.exportLayer(node, i)
-                            break
-                
-            i += 1
-        
-        if i > 1 :
-            self.doc.setCurrentTime(currTime)
-        Application.setBatchmode(False)
+                        topLevelLayers.append(c)
+                else:
+                    if self.isLayerAnimated(node):
+                        animatedLayers.append(node)
+                    else: 
+                        self.exportLayer(node, compo)
 
-        # QMessageBox creates quick popup with information
-        QMessageBox.information(Application.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportPath + " :" + self.layersName)
+            # Export animated layers
+            if animatedLayers.count() > 0:
+                haveAnimatedLayers = True
+                for i in range(self.doc.animationLength()):
+                    self.doc.setCurrentTime(i)
+
+                    for node in animatedLayers:
+                        if node.hasKeyframeAtTime(i):
+                            self.exportLayer(node, compo, "_" + str(i))
+                        elif node.type() == "grouplayer":
+                            child = node.childNodes()
+                            for c in child:
+                                if c.hasKeyframeAtTime(i):
+                                    self.exportLayer(node, compo, "_" + str(i))
+                                    break
         
-    def exportLayer(self, node, anim = None):
-        if anim == None:
-            fileName = self.namePrefix + node.name() + "." + self.extension
-        else:
-            fileName = self.namePrefix + node.name() + "_" + str(anim) + "." + self.extension
+        # Undo the setCurrentTime
+        if haveAnimatedLayers and self.doc.animationLength() > 0:
+            Application.action('edit_undo').trigger()
+            self.doc.save()
+        Application.setBatchmode(False)
+    
+    # Create a file for the specified layer
+    def exportLayer(self, node, prefix = "", suffix = ""):
+        fileName = f'{self.namePrefix}{prefix}_{node.name()}{suffix}.{self.extension}'
         self.layersName += "\n" + fileName
         path = self.exportPath + "/" + fileName
         bounds = QRect(0, 0, self.doc.width(), self.doc.height())
@@ -142,7 +194,6 @@ class ExportLayerAnim(Extension):
         self.initForExport()
         if not self.doc: return
         
-        # QDialog & layout
         self.mainDialog = exportLayerAnimDialog.ExportLayerAnimDialog(self, Application.activeWindow().qwindow())
         self.mainDialog.initialize()
 

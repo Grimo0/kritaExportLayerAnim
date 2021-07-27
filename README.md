@@ -23,4 +23,4 @@ It exports all root layers in distinct files.
 - [x] Add jpg option
 - [x] Add option to export childs of a group instead of the group
 - [ ] Add jpg parameters 
-- [ ] Add option to export layers of the compositions
+- [x] Add option to export layers of the compositions
