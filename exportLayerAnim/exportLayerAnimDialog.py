@@ -70,7 +70,7 @@ class ExportLayerAnimDialog(QDialog):
             + ("/" + self.exportDirLineEdit.text() if self.exportDirLineEdit.text() != "" else "")
             + "/" + self.namePrefixLineEdit.text() 
             + "<i>" + (i18n("Composition") if self.useCompositionsBox.isChecked() else "")
-            + i18n("_Layer_Frame") 
+            + ("_" if self.namePrefixLineEdit.text() != "" or self.useCompositionsBox.isChecked() else "") + i18n("Layer_Frame") 
             + "</i>." + self.extensionComboBox.currentText())
 
     def accept(self):
