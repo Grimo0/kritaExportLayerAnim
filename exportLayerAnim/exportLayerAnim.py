@@ -52,6 +52,18 @@ class ExportLayerAnim(Extension):
                     return True
         return False
 
+    def hasKeyframeAtTime(self, node, i):
+        if node.hasKeyframeAtTime(i):
+            return True
+        elif node.type() == "grouplayer":
+            child = node.childNodes()
+            for c in child:
+                if c.hasKeyframeAtTime(i):
+                    return True
+                elif c.type() == "grouplayer" and self.isLayerAnimated(c):
+                    return True
+        return False
+
     def getCompositionIdx(self, name):
         # Get composition docker, view, model
         docker = next(d for d in Application.dockers() if d.objectName() == 'CompositionDocker')
@@ -152,7 +164,7 @@ class ExportLayerAnim(Extension):
                         topLevelLayers.append(c)
                 else:
                     if self.isLayerAnimated(node):
-                        animatedLayers.append(node)
+                        animatedLayers.append({'node': node, 'frame': 0})
                     else: 
                         self.exportLayer(node, compo)
 
@@ -162,15 +174,11 @@ class ExportLayerAnim(Extension):
                 for i in range(self.doc.animationLength()):
                     self.doc.setCurrentTime(i)
 
-                    for node in animatedLayers:
-                        if node.hasKeyframeAtTime(i):
-                            self.exportLayer(node, compo, "_" + str(i))
-                        elif node.type() == "grouplayer":
-                            child = node.childNodes()
-                            for c in child:
-                                if c.hasKeyframeAtTime(i):
-                                    self.exportLayer(node, compo, "_" + str(i))
-                                    break
+                    for layer in animatedLayers:
+                        if self.hasKeyframeAtTime(layer['node'], i):
+                            self.exportLayer(layer['node'], compo, "_" + str(layer['frame']))
+                            layer['frame'] = layer['frame'] + 1
+
         
         # Undo the setCurrentTime
         if haveAnimatedLayers and self.doc.animationLength() > 0:
