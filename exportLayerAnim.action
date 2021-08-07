@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ActionCollection version="2" name="Scripts">
 	<Actions category="Scripts">
-		<text>My Scripts</text>
+		<text>Export Layer Anim</text>
 
 		<Action name="export_layer_anim">
 			<icon></icon>
