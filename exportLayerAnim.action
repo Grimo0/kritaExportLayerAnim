@@ -6,9 +6,9 @@
 		<Action name="export_layer_anim">
 			<icon></icon>
 			<text>Export Layer Anim</text>
-			<whatsThis></whatsThis>
-			<toolTip></toolTip>
-			<iconText></iconText>
+			<whatsThis>Exports all root layers in distinct files</whatsThis>
+			<toolTip>Exports all root layers in distinct files</toolTip>
+			<iconText>ELA</iconText>
 			<activationFlags>0</activationFlags>
 			<activationConditions>0</activationConditions>
 			<shortcut>ctrl+alt+shift+e</shortcut>
