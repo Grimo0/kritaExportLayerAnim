@@ -156,7 +156,7 @@ class ExportLayerAnim(Extension):
                     and node.type() != "filelayer"
                     and node.type() != "vectorlayer"):
                     continue
-                if "NE" in node.name():
+                if "NE" in node.name() or node.name() == "No Name":
                     continue
                 if node.type() == "grouplayer" and "EC" in node.name():
                     child = node.childNodes()
