@@ -189,7 +189,7 @@ class ExportLayerAnim(Extension):
     # Create a file for the specified layer
     def exportLayer(self, node, prefix = "", suffix = ""):
         self.doc.waitForDone()
-        fileName = f'{self.namePrefix}{prefix}{"_" if self.namePrefix != "" or prefix != "" else ""}{node.name()}{suffix}.{self.extension}'
+        fileName = f'{self.namePrefix}{prefix}{"_" if (self.namePrefix != "" or prefix != "") and node.name() != "" else ""}{node.name()}{suffix}.{self.extension}'
         self.layersName += "\n" + fileName
         path = self.exportPath + "/" + fileName
         bounds = QRect(0, 0, self.doc.width(), self.doc.height())
