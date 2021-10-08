@@ -19,6 +19,7 @@ class ExportLayerAnimDialog(QDialog):
         self.exportDirLineEdit = QLineEdit()
         self.namePrefixLineEdit = QLineEdit()
         self.exampleLabel = QLabel()
+        self.helpLabel = QLabel()
         self.extensionComboBox = QComboBox()
         self.useCompositionsBox = QCheckBox(i18n("Use compositions"))
         self.buttonBox = QDialogButtonBox(
@@ -31,6 +32,12 @@ class ExportLayerAnimDialog(QDialog):
         self.exampleLabel.setTextFormat(Qt.RichText)
         self.exampleLabel.setIndent(5)
         self.useCompositionsBox.stateChanged.connect(self.updateLabels)
+        self.helpLabel.setWordWrap(True)
+        self.helpLabel.setTextFormat(Qt.RichText)
+        self.helpLabel.setText(i18n("Add the followings to layer's name:")
+            + "<br/>- <code>NE</code>: " + i18n("won't be exported")
+            + "<br/>- <code>EC</code>: " + i18n("export children")
+        )
                 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
@@ -45,6 +52,7 @@ class ExportLayerAnimDialog(QDialog):
         self.mainLayout.addLayout(self.formLayout)
         self.mainLayout.addWidget(self.exampleLabel)
         self.mainLayout.addWidget(self.useCompositionsBox)
+        self.mainLayout.addWidget(self.helpLabel)
         line = QFrame()
         line.setFrameStyle(QFrame.HLine | QFrame.Sunken)
         self.mainLayout.addWidget(line)
