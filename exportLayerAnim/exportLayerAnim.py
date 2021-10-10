@@ -41,6 +41,8 @@ class ExportLayerAnim(Extension):
             raise e
 
     def isLayerAnimated(self, node):
+        if self.firstFrame:
+            return False
         if node.animated():
             return True
         elif node.type() == "grouplayer":
@@ -137,6 +139,7 @@ class ExportLayerAnim(Extension):
             self.namePrefix = filename
         self.extension = "png"
         self.useCompositions = False
+        self.firstFrame = False
 
     def export(self):
         Application.setBatchmode(True)

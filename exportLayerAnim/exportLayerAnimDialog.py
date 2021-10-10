@@ -22,6 +22,7 @@ class ExportLayerAnimDialog(QDialog):
         self.helpLabel = QLabel()
         self.extensionComboBox = QComboBox()
         self.useCompositionsBox = QCheckBox(i18n("Use compositions"))
+        self.firstFrameBox = QCheckBox(i18n("First frame only"))
         self.buttonBox = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         
@@ -32,6 +33,7 @@ class ExportLayerAnimDialog(QDialog):
         self.exampleLabel.setTextFormat(Qt.RichText)
         self.exampleLabel.setIndent(5)
         self.useCompositionsBox.stateChanged.connect(self.updateLabels)
+        self.firstFrameBox.stateChanged.connect(self.updateLabels)
         self.helpLabel.setWordWrap(True)
         self.helpLabel.setTextFormat(Qt.RichText)
         self.helpLabel.setText(i18n("Add the followings to layer's name:")
@@ -51,7 +53,13 @@ class ExportLayerAnimDialog(QDialog):
 
         self.mainLayout.addLayout(self.formLayout)
         self.mainLayout.addWidget(self.exampleLabel)
-        self.mainLayout.addWidget(self.useCompositionsBox)
+        hLayout = QHBoxLayout()
+        hLayout.addWidget(self.useCompositionsBox)
+        hLayout.addWidget(self.firstFrameBox)
+        self.mainLayout.addLayout(hLayout)
+        line = QFrame()
+        line.setFrameStyle(QFrame.HLine | QFrame.Sunken)
+        self.mainLayout.addWidget(line)
         self.mainLayout.addWidget(self.helpLabel)
         line = QFrame()
         line.setFrameStyle(QFrame.HLine | QFrame.Sunken)
@@ -66,6 +74,7 @@ class ExportLayerAnimDialog(QDialog):
         self.namePrefixLineEdit.setText(self.exportLayerAnim.namePrefix)
         self.extensionComboBox.setCurrentText(self.exportLayerAnim.extension)
         self.useCompositionsBox.setChecked(self.exportLayerAnim.useCompositions)
+        self.firstFrameBox.setChecked(self.exportLayerAnim.firstFrame)
         self.updateLabels()
 
         self.show()
@@ -78,7 +87,7 @@ class ExportLayerAnimDialog(QDialog):
             + ("/" + self.exportDirLineEdit.text() if self.exportDirLineEdit.text() != "" else "")
             + "/" + self.namePrefixLineEdit.text() 
             + "<i>" + (i18n("Composition") if self.useCompositionsBox.isChecked() else "")
-            + ("_" if self.namePrefixLineEdit.text() != "" or self.useCompositionsBox.isChecked() else "") + i18n("Layer_Frame") 
+            + ("_" if self.namePrefixLineEdit.text() != "" or self.useCompositionsBox.isChecked() else "") + (i18n("Layer_Frame") if not self.firstFrameBox.isChecked() else i18n("Layer"))
             + "</i>." + self.extensionComboBox.currentText())
 
     def accept(self):
@@ -86,6 +95,7 @@ class ExportLayerAnimDialog(QDialog):
         self.exportLayerAnim.namePrefix = self.namePrefixLineEdit.text()
         self.exportLayerAnim.extension = self.extensionComboBox.currentText()
         self.exportLayerAnim.useCompositions = self.useCompositionsBox.isChecked()
+        self.exportLayerAnim.firstFrame = self.firstFrameBox.isChecked()
         self.exportLayerAnim.export()
 
         QMessageBox.information(Application.activeWindow().qwindow(), i18n("Exportation done"), i18n("Files created in") + " " + self.exportLayerAnim.exportPath + " :" + self.exportLayerAnim.layersName)
